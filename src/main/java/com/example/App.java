@@ -2,50 +2,67 @@ package com.example;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
 /**
  * Hello world!
  *
  */
-public class App {
-    public static void main(String[] args) {
-        try {      
-            System.out.println("Startando il server!");
+public class App 
+{
+    public static void main( String[] args )
+    {
+        System.out.println( "client attivo!" );
+        
 
-            int ran = (int)Math.floor(Math.random() * (100 - 1 + 1) + 1);
-            int cont = 0;
 
-            ServerSocket server = new ServerSocket(3000);
-            Socket s = server.accept();
+        try {
+        
+            Socket s = new Socket("localhost", 3000);
+            Scanner scanner = new Scanner(System.in);
 
-            System.out.println("Client collegato");
-            
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             
-            Integer numeroRicevuto = Integer.parseInt(in.readLine());
-            System.out.println("Numero ricevuto " + numeroRicevuto);
+            
+            String stringaRicevuta = null;
+            Integer cont = 0;
+            do {
+                System.out.println("Inserisci un numero");
+                String num = scanner.nextLine();
+                out.writeBytes(num + '\n');
+                
+                stringaRicevuta = in.readLine();
 
-            if(numeroRicevuto < ran){
-                out.writeBytes(numeroRicevuto + " è troppo piccolo");
-                cont++;
-            } else if(numeroRicevuto > ran){
-                out.writeBytes(numeroRicevuto + " è troppo grande");
-                cont++;
-            } else if(numeroRicevuto == ran){
-                out.writeBytes(numeroRicevuto + " è esatto!!" + "\n Hai indovinato in " + cont + " tentativi");
-            }
+                if(Integer.parseInt(stringaRicevuta) == 2){
 
+                    System.out.println("numero troppo grande");
+
+                }
+
+                else if(Integer.parseInt(stringaRicevuta) == 1){
+
+                    System.out.println("numero troppo piccolo");
+                    
+                } 
+                cont++;
+                
+            } while (Integer.parseInt(stringaRicevuta) != 3);
+            System.out.println("numero indovinato in " + cont + " tentativi");
             s.close();
-            server.close();
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("errore durante l'istanza del server");
-            System.exit(1);
+       
+        } catch (UnknownHostException e) {
+            
+            e.printStackTrace();
+        
+        } catch (IOException e) {
+            
+            e.printStackTrace();
+        
         }
     }
 }
